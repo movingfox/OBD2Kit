@@ -89,7 +89,7 @@ const GoLinkRequestFrame g_VehicleBusTypeRequestFrame = {
 	
 	frame.data[0]		= mode;
 	
-	if (pid >= 0x00 && pid <= 0x4E) {
+	if (pid <= 0x4E) {
 		frame.data[1]		= pid;
 		frame.header.length	= 2;
 		

@@ -113,7 +113,7 @@ NSString* const kGoLinkScanToolName		= @"GoLink";
 		FLDEBUG(@"bytesRemaining = %d ** dataFrameAddr = %p", bytesRemaining, frameHeader)
 		
 		if ((sizeof(GoLinkFrameHeader) + frameHeader->length) > bytesRemaining) {
-			FLERROR(@"Dropping incomplete frame. Expecting %d, bytesRemaining %d", (sizeof(GoLinkFrameHeader) + frameHeader->length), bytesRemaining)
+			FLERROR(@"Dropping incomplete frame. Expecting %ld, bytesRemaining %d", (sizeof(GoLinkFrameHeader) + frameHeader->length), bytesRemaining)
 			break;
 		}
 		

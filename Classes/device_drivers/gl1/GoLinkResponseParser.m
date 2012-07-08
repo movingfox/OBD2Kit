@@ -39,7 +39,7 @@
 		FLDEBUG(@"Parsing response %@", [[NSData dataWithBytes:(const void*)&(systemFrame->requestType) length:systemFrame->header.length] description])
 		
 		if ((sizeof(GoLinkFrameHeader) + systemFrame->header.length) > bytesRemaining) {
-			FLERROR(@"Dropping incomplete frame. Expecting %d, bytesRemaining %d", (sizeof(GoLinkFrameHeader) + systemFrame->header.length), bytesRemaining)
+			FLERROR(@"Dropping incomplete frame. Expecting %ld, bytesRemaining %d", (sizeof(GoLinkFrameHeader) + systemFrame->header.length), bytesRemaining)
 			break;
 		}
 
@@ -74,7 +74,7 @@
 		FLDEBUG(@"Parsing response %@", [[NSData dataWithBytes:(const void*)&(dataFrame->mode) length:dataFrame->header.length] description])
 		
 		if ((sizeof(GoLinkFrameHeader) + dataFrame->header.length) > bytesRemaining) {
-			FLERROR(@"Dropping incomplete frame. Expecting %d, bytesRemaining %d", (sizeof(GoLinkFrameHeader) + dataFrame->header.length), bytesRemaining)
+			FLERROR(@"Dropping incomplete frame. Expecting %ld, bytesRemaining %d", (sizeof(GoLinkFrameHeader) + dataFrame->header.length), bytesRemaining)
 			break;
 		}
 		

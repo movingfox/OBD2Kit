@@ -457,7 +457,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 + (FLECUSensor*) sensorForPID:(NSUInteger)pid {
 	FLECUSensor* sensor		= nil;
 	
-	if(pid >= 0x0 && pid <= 0x4E) {
+	if(pid <= 0x4E) {
 		sensor			= [[FLECUSensor alloc] initWithDescriptor:&g_sensorDescriptorTable[pid]];
 	}
 	
@@ -465,9 +465,8 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 }
 
 + (NSArray*) troubleCodesForResponse:(FLScanToolResponse*)response {
-	
 	const char systemCode[4]	= { 'P', 'C', 'B', 'U' };	
-	uint8_t* data				= (uint8_t*)[response.data bytes];
+	uint8_t *data				= (uint8_t *)[response.data bytes];
 	int dataLength				= [response.data length];	
 	NSMutableArray* codes		= nil;
 	
@@ -482,7 +481,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 			// appears to be more common than previously anticipated.
 			// - mgile 08-Feb-2010
 			
-			FLERROR(@"data (0x%08X) is NULL or dataLength is not a multiple of 2 (%d)", data, dataLength)
+			FLERROR(@"data (0x%08X) is NULL or dataLength is not a multiple of 2 (%d)", *data, dataLength)
 			// data length must be a multiple of 2
 			// each DTC is encoded in 2 bytes of data
 			return nil;
@@ -1085,16 +1084,13 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 	unsigned char dataA = 0;	
 	[data getBytes:&dataA length:1];
 	
-	dataA = dataA & ~0x7F; // only bit 0 is valid
+	dataA = dataA & 1; // only bit 0 is valid
 	
-	if(dataA & 0x01 != 0) {
+	if(dataA) {
 		return @"PTO_STATE: ON";
 	}
-	else if(dataA & 0x02 != 0) {
-		return @"PTO_STATE: OFF";
-	}
 	else {
-		return nil;
+		return @"PTO_STATE: OFF";
 	}
 }
 
@@ -1154,75 +1150,67 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 	return returnString;
 }
 
-
-
-
-
 - (NSString*) calculateOxygenSensorsPresent:(NSData*)data {
 	NSString* returnString	= nil;
 	unsigned char dataA		= 0;
 	[data getBytes:&dataA length:1];
 	
-	if(dataA & 0x01 != 0)
-		returnString		= [NSString stringWithFormat:@"O2S11", returnString];
+	if(dataA & 0x01)
+		returnString		= @"B1S1";
 	
-	if(dataA & 0x02 != 0)
-		returnString		= [NSString stringWithFormat:@"%@, O2S12", returnString];
+	if(dataA & 0x02)
+		returnString		= [NSString stringWithFormat:@"B1S2, %@", returnString];
 	
-	if(dataA & 0x04 != 0)
-		returnString		= [NSString stringWithFormat:@"%@, O2S13", returnString];
+	if(dataA & 0x04)
+		returnString		= [NSString stringWithFormat:@"B1S3, %@", returnString];
 	
-	if(dataA & 0x08 != 0)
-		returnString		= [NSString stringWithFormat:@"%@, O2S14", returnString];
+	if(dataA & 0x08)
+		returnString		= [NSString stringWithFormat:@"B1S4, %@", returnString];
 	
-	if(dataA & 0x10 != 0)
-		returnString		= [NSString stringWithFormat:@"%@, O2S21", returnString];
+	if(dataA & 0x10)
+		returnString		= [NSString stringWithFormat:@"B2S1, %@", returnString];
 	
-	if(dataA & 0x20 != 0)
-		returnString		= [NSString stringWithFormat:@"%@, O2S22", returnString];
+	if(dataA & 0x20)
+		returnString		= [NSString stringWithFormat:@"B2S2, %@", returnString];
 	
-	if(dataA & 0x40 != 0)
-		returnString		= [NSString stringWithFormat:@"%@, O2S23", returnString];
+	if(dataA & 0x40)
+		returnString		= [NSString stringWithFormat:@"B2S3, %@", returnString];
 	
-	if(dataA & 0x80 != 0)
-		returnString		= [NSString stringWithFormat:@"%@, O2S24", returnString];
-	
-	
+	if(dataA & 0x80)
+		returnString		= [NSString stringWithFormat:@"B2S4, %@", returnString];
+
 	return returnString;
 }
 
 
 - (NSString*) calculateOxygenSensorsPresentB:(NSData*)data {
-	
 	NSString* returnString	= nil;
 	unsigned char dataA		= 0;
 	[data getBytes:&dataA length:1];
-	
-	
-	if(dataA & 0x01 != 0)
-		returnString		= [NSString stringWithFormat:@"O2S11", returnString];
-	
-	if(dataA & 0x02 != 0)
-		returnString		= [NSString stringWithFormat:@"%@, O2S12", returnString];
-	
-	if(dataA & 0x04 != 0)
-		returnString		= [NSString stringWithFormat:@"%@, O2S21", returnString];
-	
-	if(dataA & 0x08 != 0)
-		returnString		= [NSString stringWithFormat:@"%@, O2S22", returnString];
-	
-	if(dataA & 0x10 != 0)
-		returnString		= [NSString stringWithFormat:@"%@, O2S31", returnString];
-	
-	if(dataA & 0x20 != 0)
-		returnString		= [NSString stringWithFormat:@"%@, O2S32", returnString];
-	
-	if(dataA & 0x40 != 0)
-		returnString		= [NSString stringWithFormat:@"%@, O2S41", returnString];
-	
-	if(dataA & 0x80 != 0)
-		returnString		= [NSString stringWithFormat:@"%@, O2S42", returnString];
 
+	if(dataA & 0x01)
+		returnString		= @"B1S1";
+
+	if(dataA & 0x02)
+		returnString		= [NSString stringWithFormat:@"B1S2, %@", returnString];
+	
+	if(dataA & 0x04)
+		returnString		= [NSString stringWithFormat:@"B2S1, %@", returnString];
+	
+	if(dataA & 0x08)
+		returnString		= [NSString stringWithFormat:@"B2S2, %@", returnString];
+	
+	if(dataA & 0x10)
+		returnString		= [NSString stringWithFormat:@"B3S1, %@", returnString];
+	
+	if(dataA & 0x20)
+		returnString		= [NSString stringWithFormat:@"B3S2, %@", returnString];
+	
+	if(dataA & 0x40)
+		returnString		= [NSString stringWithFormat:@"B4S1, %@", returnString];
+	
+	if(dataA & 0x80)
+		returnString		= [NSString stringWithFormat:@"B4S2, %@", returnString];
 
 	return returnString;
 }
